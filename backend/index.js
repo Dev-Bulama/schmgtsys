@@ -1,31 +1,46 @@
-const express = require("express")
-const cors = require("cors")
-const mongoose = require("mongoose")
-const dotenv = require("dotenv")
-// const bodyParser = require("body-parser")
-const app = express()
-const Routes = require("./routes/route.js")
-
-const PORT = process.env.PORT || 5000
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const { PrismaClient } = require('@prisma/client');
 
 dotenv.config();
 
-// app.use(bodyParser.json({ limit: '10mb', extended: true }))
-// app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
+const app = express();
+const prisma = new PrismaClient();
+const PORT = process.env.PORT || 5000;
 
-app.use(express.json({ limit: '10mb' }))
-app.use(cors())
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-mongoose
-    .connect(process.env.MONGO_URL, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    })
-    .then(console.log("Connected to MongoDB"))
-    .catch((err) => console.log("NOT CONNECTED TO NETWORK", err))
+app.use((req, res, next) => {
+  req.prisma = prisma;
+  next();
+});
+
+const Routes = require('./src/routes/route');
 
 app.use('/', Routes);
 
-app.listen(PORT, () => {
-    console.log(`Server started at port no. ${PORT}`)
-})
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received. Closing HTTP server...');
+  server.close(async () => {
+    await prisma.$disconnect();
+    console.log('HTTP server closed');
+  });
+});
+
+module.exports = app;
