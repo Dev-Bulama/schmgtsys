@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
-  relationMode = "prisma"
 }
 
 model User {
@@ -20,8 +19,6 @@ model User {
   student       Student?
   lecturer      Lecturer?
   parent        Parent?
-  activityLogs  ActivityLog[]
-  sessions      Session[]
 }
 
 enum UserRole {
@@ -43,7 +40,6 @@ model Admin {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  campuses     Campus[]
   notices      Notice[]
   complain     Complain[]
 }
@@ -63,8 +59,6 @@ model Campus {
   departments  Department[]
   students     Student[]
   lecturers    Lecturer[]
-  hostels      Hostel[]
-  sessions     AcademicSession[]
 }
 
 model Department {
@@ -74,7 +68,6 @@ model Department {
   description String?
   campusId    String
   campus      Campus   @relation(fields: [campusId], references: [id], onDelete: Cascade)
-  hodId       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -96,7 +89,6 @@ model Program {
   updatedAt   DateTime @updatedAt
 
   students    Student[]
-  courses     ProgramCourse[]
   levels      Level[]
 }
 
@@ -109,7 +101,6 @@ model Level {
   updatedAt  DateTime @updatedAt
 
   students       Student[]
-  programCourses ProgramCourse[]
 }
 
 model AcademicSession {
@@ -234,7 +225,6 @@ model Lecturer {
   updatedAt    DateTime @updatedAt
 
   courses      Course[]
-  teachCourses TeachCourse[]
 }
 
 model Course {
@@ -256,31 +246,7 @@ model Course {
   results      Result[]
   attendances  Attendance[]
   examQuestions ExamQuestion[]
-  programCourses ProgramCourse[]
   exams        Exam[]
-  teachCourses TeachCourse[]
-}
-
-model ProgramCourse {
-  id        String   @id @default(uuid())
-  programId String
-  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
-  courseId  String
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  isCore    Boolean  @default(true)
-  levelId   String
-  level     Level    @relation(fields: [levelId], references: [id], onDelete: Cascade)
-}
-
-model TeachCourse {
-  id         String   @id @default(uuid())
-  lecturerId String
-  lecturer   Lecturer @relation(fields: [lecturerId], references: [id], onDelete: Cascade)
-  courseId   String
-  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  semesterId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
 }
 
 model Enrollment {
@@ -294,6 +260,8 @@ model Enrollment {
   status    EnrollmentStatus @default(ENROLLED)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([studentId, courseId, semesterId])
 }
 
 enum EnrollmentStatus {
@@ -317,6 +285,8 @@ model Attendance {
   latitude   Float?
   longitude  Float?
   createdAt  DateTime @default(now())
+
+  @@unique([studentId, courseId, date])
 }
 
 enum AttendanceStatus {
@@ -343,6 +313,8 @@ model Result {
   isRetake    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@unique([studentId, courseId, semesterId])
 }
 
 model Payment {
@@ -405,51 +377,6 @@ enum ComplainStatus {
   IN_PROGRESS
   RESOLVED
   REJECTED
-}
-
-model Hostel {
-  id        String   @id @default(uuid())
-  name      String
-  type      String
-  capacity  Int
-  campusId  String
-  campus    Campus   @relation(fields: [campusId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  rooms     Room[]
-}
-
-model Room {
-  id        String   @id @default(uuid())
-  number    String
-  hostelId  String
-  hostel    Hostel   @relation(fields: [hostelId], references: [id], onDelete: Cascade)
-  capacity  Int
-  floor     Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  assignments HostelAssignment[]
-}
-
-model HostelAssignment {
-  id          String   @id @default(uuid())
-  studentId   String
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  roomId      String
-  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  checkInDate DateTime
-  checkOutDate DateTime?
-  status      AssignmentStatus @default(ACTIVE)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-enum AssignmentStatus {
-  ACTIVE
-  CHECKED_OUT
-  CANCELLED
 }
 
 model Exam {
@@ -529,22 +456,20 @@ model BiometricData {
   updatedAt     DateTime @updatedAt
 }
 
-model ActivityLog {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  action    String
-  details   String?
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
+model HostelAssignment {
+  id          String   @id @default(uuid())
+  studentId   String   @unique
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  roomId      String
+  checkInDate DateTime
+  checkOutDate DateTime?
+  status      AssignmentStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-model Session {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+enum AssignmentStatus {
+  ACTIVE
+  CHECKED_OUT
+  CANCELLED
 }
