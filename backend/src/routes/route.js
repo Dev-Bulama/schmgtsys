@@ -26,6 +26,8 @@ router.delete('/Student/:id', authenticate, authorize('ADMIN'), deleteStudent);
 router.delete('/Students', authenticate, authorize('ADMIN'), deleteStudents);
 router.delete('/StudentsClass/:id', authenticate, authorize('ADMIN'), deleteStudentsByClass);
 
+router.post('/TeacherReg', lecturerRegister);
+router.post('/TeacherLogin', lecturerLogIn);
 router.post('/LecturerReg', lecturerRegister);
 router.post('/LecturerLogin', lecturerLogIn);
 router.get('/Lecturers', authenticate, getLecturers);

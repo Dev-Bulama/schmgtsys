@@ -23,6 +23,7 @@ const App = () => {
           <Route path="/Adminlogin" element={<LoginPage role="Admin" />} />
           <Route path="/Studentlogin" element={<LoginPage role="Student" />} />
           <Route path="/Teacherlogin" element={<LoginPage role="Teacher" />} />
+          <Route path="/Parentlogin" element={<LoginPage role="Parent" />} />
 
           <Route path="/Adminregister" element={<AdminRegisterPage />} />
 
@@ -41,9 +42,15 @@ const App = () => {
         </>
       }
 
-      {currentRole === "Teacher" &&
+      {currentRole === "Teacher" || currentRole === "Lecturer" &&
         <>
           <TeacherDashboard />
+        </>
+      }
+
+      {currentRole === "Parent" &&
+        <>
+          <StudentDashboard />
         </>
       }
     </Router>
