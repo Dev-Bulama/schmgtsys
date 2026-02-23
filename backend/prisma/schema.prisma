@@ -11,27 +11,14 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String
-  role      UserRole
+  role      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  admin         Admin?
-  student       Student?
-  lecturer      Lecturer?
-  parent        Parent?
-}
-
-enum UserRole {
-  ADMIN
-  STUDENT
-  LECTURER
-  PARENT
 }
 
 model Admin {
   id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
   firstName String
   lastName  String
   phone     String?
@@ -39,9 +26,6 @@ model Admin {
   photo     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  notices      Notice[]
-  complain     Complain[]
 }
 
 model Campus {
@@ -52,13 +36,8 @@ model Campus {
   phone     String?
   email     String?
   adminId   String
-  admin     Admin    @relation(fields: [adminId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  departments  Department[]
-  students     Student[]
-  lecturers    Lecturer[]
 }
 
 model Department {
@@ -67,14 +46,8 @@ model Department {
   code        String   @unique
   description String?
   campusId    String
-  campus      Campus   @relation(fields: [campusId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  programs    Program[]
-  lecturers   Lecturer[]
-  courses     Course[]
-  students    Student[]
 }
 
 model Program {
@@ -83,24 +56,17 @@ model Program {
   code        String  @unique
   description String?
   departmentId String
-  department  Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   duration    Int      @default(4)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  students    Student[]
-  levels      Level[]
 }
 
 model Level {
   id         String   @id @default(uuid())
   level      Int
   programId  String
-  program    Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
-  students       Student[]
 }
 
 model AcademicSession {
@@ -110,38 +76,29 @@ model AcademicSession {
   endDate   DateTime
   isCurrent Boolean  @default(false)
   campusId  String
-  campus    Campus   @relation(fields: [campusId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  semesters  Semester[]
 }
 
 model Semester {
   id          String   @id @default(uuid())
   name        String
   sessionId   String
-  session     AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   isCurrent   Boolean  @default(false)
   startDate   DateTime
   endDate     DateTime
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  courses     Course[]
-  results     Result[]
-  attendance  Attendance[]
 }
 
 model Student {
   id              String   @id @default(uuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
   studentId       String   @unique
   firstName       String
   lastName        String
   middleName      String?
-  gender          Gender
+  gender          String
   dateOfBirth     DateTime
   phone           String?
   address         String?
@@ -149,49 +106,20 @@ model Student {
   bloodGroup      String?
   genotype        String?
   campusId        String
-  campus          Campus   @relation(fields: [campusId], references: [id], onDelete: Cascade)
   programId       String
-  program         Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
   levelId         String
-  level           Level    @relation(fields: [levelId], references: [id], onDelete: Cascade)
   departmentId    String
-  department      Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  status          StudentStatus @default(ACTIVE)
+  status          String   @default("ACTIVE")
   admissionDate   DateTime @default(now())
   graduationDate  DateTime?
   parentId        String?
-  parent          Parent?  @relation(fields: [parentId], references: [id])
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
-  enrollments     Enrollment[]
-  results         Result[]
-  attendance      Attendance[]
-  payments        Payment[]
-  complaints      Complain[]
-  examSubmissions ExamSubmission[]
-  biometricData   BiometricData?
-  hostelAssignment HostelAssignment?
-}
-
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
-
-enum StudentStatus {
-  ACTIVE
-  INACTIVE
-  GRADUATED
-  SUSPENDED
-  DROPPED_OUT
 }
 
 model Parent {
   id          String   @id @default(uuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
   firstName   String
   lastName    String
   email       String?
@@ -200,14 +128,11 @@ model Parent {
   address     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  students    Student[]
 }
 
 model Lecturer {
   id           String   @id @default(uuid())
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
   staffId      String   @unique
   firstName    String
   lastName     String
@@ -215,16 +140,12 @@ model Lecturer {
   phone        String?
   address      String?
   photo        String?
-  gender       Gender
+  gender       String
   departmentId String
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   campusId     String
-  campus       Campus   @relation(fields: [campusId], references: [id], onDelete: Cascade)
   position     String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
-  courses      Course[]
 }
 
 model Course {
@@ -234,76 +155,41 @@ model Course {
   description  String?
   creditHours  Int      @default(3)
   semesterId   String
-  semester     Semester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
   departmentId String
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   lecturerId   String?
-  lecturer     Lecturer? @relation(fields: [lecturerId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
-  enrollments  Enrollment[]
-  results      Result[]
-  attendances  Attendance[]
-  examQuestions ExamQuestion[]
-  exams        Exam[]
 }
 
 model Enrollment {
-  id        String   @id @default(uuid())
-  studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  courseId  String
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  semesterId String
-  enrollmentDate DateTime @default(now())
-  status    EnrollmentStatus @default(ENROLLED)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([studentId, courseId, semesterId])
-}
-
-enum EnrollmentStatus {
-  ENROLLED
-  DROPPED
-  COMPLETED
-  FAILED
+  id              String   @id @default(uuid())
+  studentId       String
+  courseId        String
+  semesterId      String
+  enrollmentDate  DateTime @default(now())
+  status          String   @default("ENROLLED")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Attendance {
   id         String   @id @default(uuid())
   studentId  String
-  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   courseId   String
-  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   semesterId String
-  semester   Semester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
   date       DateTime
-  status     AttendanceStatus
+  status     String
   deviceId   String?
   latitude   Float?
   longitude  Float?
   createdAt  DateTime @default(now())
-
-  @@unique([studentId, courseId, date])
-}
-
-enum AttendanceStatus {
-  PRESENT
-  ABSENT
-  LATE
-  EXCUSED
 }
 
 model Result {
   id          String   @id @default(uuid())
   studentId   String
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   courseId    String
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   semesterId  String
-  semester    Semester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
   caScore     Float    @default(0)
   examScore   Float    @default(0)
   totalScore  Float    @default(0)
@@ -313,19 +199,16 @@ model Result {
   isRetake    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  @@unique([studentId, courseId, semesterId])
 }
 
 model Payment {
   id            String   @id @default(uuid())
   studentId     String
-  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   amount        Float
-  paymentType   PaymentType
+  paymentType   String
   paymentMethod String?
   reference     String?  @unique
-  status        PaymentStatus @default(PENDING)
+  status        String   @default("PENDING")
   description   String?
   dueDate       DateTime?
   paidDate      DateTime?
@@ -334,27 +217,11 @@ model Payment {
   updatedAt     DateTime @updatedAt
 }
 
-enum PaymentType {
-  TUITION
-  HOSTEL
-  LIBRARY
-  REGISTRATION
-  OTHER
-}
-
-enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
-}
-
 model Notice {
   id        String   @id @default(uuid())
   title     String
   content   String
   adminId   String
-  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -364,51 +231,30 @@ model Complain {
   title     String
   content   String
   studentId String?
-  student   Student? @relation(fields: [studentId], references: [id])
   adminId   String
-  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
-  status    ComplainStatus @default(PENDING)
+  status    String   @default("PENDING")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-enum ComplainStatus {
-  PENDING
-  IN_PROGRESS
-  RESOLVED
-  REJECTED
 }
 
 model Exam {
   id          String   @id @default(uuid())
   title       String
   courseId    String
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   duration    Int
   startTime   DateTime
   endTime     DateTime
-  status      ExamStatus @default(DRAFT)
+  status      String   @default("DRAFT")
   shuffleQuestions Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  questions   ExamQuestion[]
-  submissions ExamSubmission[]
-}
-
-enum ExamStatus {
-  DRAFT
-  PUBLISHED
-  IN_PROGRESS
-  COMPLETED
 }
 
 model ExamQuestion {
   id            String   @id @default(uuid())
   examId        String
-  exam          Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
   question      String
-  type          QuestionType
+  type          String
   options       String
   correctAnswer String
   points        Float    @default(1)
@@ -416,60 +262,26 @@ model ExamQuestion {
   updatedAt     DateTime @updatedAt
 }
 
-enum QuestionType {
-  MULTIPLE_CHOICE
-  TRUE_FALSE
-  SHORT_ANSWER
-}
-
 model ExamSubmission {
   id          String   @id @default(uuid())
   studentId   String
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   examId      String
-  exam        Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
   answers     String
   score       Float?
   startTime   DateTime
   endTime     DateTime?
   tabSwitches Int      @default(0)
-  status      SubmissionStatus @default(IN_PROGRESS)
+  status      String   @default("IN_PROGRESS")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-}
-
-enum SubmissionStatus {
-  IN_PROGRESS
-  SUBMITTED
-  GRADED
-  FLAGGED
 }
 
 model BiometricData {
   id            String   @id @default(uuid())
   studentId     String   @unique
-  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   faceEncoding  String?
   fingerprint   String?
   deviceId      String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-}
-
-model HostelAssignment {
-  id          String   @id @default(uuid())
-  studentId   String   @unique
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  roomId      String
-  checkInDate DateTime
-  checkOutDate DateTime?
-  status      AssignmentStatus @default(ACTIVE)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-enum AssignmentStatus {
-  ACTIVE
-  CHECKED_OUT
-  CANCELLED
 }
