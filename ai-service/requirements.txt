@@ -1,0 +1,18 @@
+{
+  "name": "ai-analytics-service",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "uvicorn app.main:app --host 0.0.0.0 --port 8001",
+    "dev": "uvicorn app.main:app --reload"
+  },
+  "dependencies": {
+    "fastapi": "^0.109.0",
+    "uvicorn": "^0.27.0",
+    "psycopg2-binary": "^2.9.9",
+    "python-dotenv": "^1.0.0",
+    "pydantic": "^2.5.3",
+    "numpy": "^1.26.3",
+    "scikit-learn": "^1.4.0",
+    "pandas": "^2.2.0"
+  }
+}
