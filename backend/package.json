@@ -2,15 +2,15 @@
   "name": "school-management-backend",
   "version": "1.0.0",
   "description": "Modern School Management System Backend",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "seed": "node prisma/seed.js",
-    "build": "npm install"
+    "build": "npm install && npx prisma generate"
   },
   "author": "",
   "license": "ISC",
