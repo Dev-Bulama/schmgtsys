@@ -22,8 +22,6 @@ model User {
   parent        Parent?
   activityLogs  ActivityLog[]
   sessions      Session[]
-
-  @@index([role])
 }
 
 enum UserRole {
@@ -48,8 +46,6 @@ model Admin {
   campuses     Campus[]
   notices      Notice[]
   complain     Complain[]
-
-  @@index([userId])
 }
 
 model Campus {
@@ -69,8 +65,6 @@ model Campus {
   lecturers    Lecturer[]
   hostels      Hostel[]
   sessions     AcademicSession[]
-
-  @@index([adminId])
 }
 
 model Department {
@@ -87,8 +81,7 @@ model Department {
   programs    Program[]
   lecturers   Lecturer[]
   courses     Course[]
-
-  @@index([campusId])
+  students    Student[]
 }
 
 model Program {
@@ -105,8 +98,6 @@ model Program {
   students    Student[]
   courses     ProgramCourse[]
   levels      Level[]
-
-  @@index([departmentId])
 }
 
 model Level {
@@ -119,8 +110,6 @@ model Level {
 
   students       Student[]
   programCourses ProgramCourse[]
-
-  @@index([programId])
 }
 
 model AcademicSession {
@@ -135,8 +124,6 @@ model AcademicSession {
   updatedAt DateTime @updatedAt
 
   semesters  Semester[]
-
-  @@index([campusId])
 }
 
 model Semester {
@@ -153,8 +140,6 @@ model Semester {
   courses     Course[]
   results     Result[]
   attendance  Attendance[]
-
-  @@index([sessionId])
 }
 
 model Student {
@@ -196,13 +181,6 @@ model Student {
   examSubmissions ExamSubmission[]
   biometricData   BiometricData?
   hostelAssignment HostelAssignment?
-
-  @@index([userId])
-  @@index([campusId])
-  @@index([programId])
-  @@index([levelId])
-  @@index([departmentId])
-  @@index([parentId])
 }
 
 enum Gender {
@@ -233,8 +211,6 @@ model Parent {
   updatedAt   DateTime @updatedAt
 
   students    Student[]
-
-  @@index([userId])
 }
 
 model Lecturer {
@@ -259,10 +235,6 @@ model Lecturer {
 
   courses      Course[]
   teachCourses TeachCourse[]
-
-  @@index([userId])
-  @@index([departmentId])
-  @@index([campusId])
 }
 
 model Course {
@@ -287,10 +259,6 @@ model Course {
   programCourses ProgramCourse[]
   exams        Exam[]
   teachCourses TeachCourse[]
-
-  @@index([semesterId])
-  @@index([departmentId])
-  @@index([lecturerId])
 }
 
 model ProgramCourse {
@@ -302,11 +270,6 @@ model ProgramCourse {
   isCore    Boolean  @default(true)
   levelId   String
   level     Level    @relation(fields: [levelId], references: [id], onDelete: Cascade)
-
-  @@unique([programId, courseId])
-  @@index([programId])
-  @@index([courseId])
-  @@index([levelId])
 }
 
 model TeachCourse {
@@ -318,9 +281,6 @@ model TeachCourse {
   semesterId String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
-  @@index([lecturerId])
-  @@index([courseId])
 }
 
 model Enrollment {
@@ -334,10 +294,6 @@ model Enrollment {
   status    EnrollmentStatus @default(ENROLLED)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@unique([studentId, courseId, semesterId])
-  @@index([studentId])
-  @@index([courseId])
 }
 
 enum EnrollmentStatus {
@@ -361,11 +317,6 @@ model Attendance {
   latitude   Float?
   longitude  Float?
   createdAt  DateTime @default(now())
-
-  @@unique([studentId, courseId, date])
-  @@index([studentId])
-  @@index([courseId])
-  @@index([semesterId])
 }
 
 enum AttendanceStatus {
@@ -392,11 +343,6 @@ model Result {
   isRetake    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  @@unique([studentId, courseId, semesterId])
-  @@index([studentId])
-  @@index([courseId])
-  @@index([semesterId])
 }
 
 model Payment {
@@ -414,8 +360,6 @@ model Payment {
   transactionId String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
-  @@index([studentId])
 }
 
 enum PaymentType {
@@ -441,8 +385,6 @@ model Notice {
   admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([adminId])
 }
 
 model Complain {
@@ -456,9 +398,6 @@ model Complain {
   status    ComplainStatus @default(PENDING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([studentId])
-  @@index([adminId])
 }
 
 enum ComplainStatus {
@@ -472,15 +411,13 @@ model Hostel {
   id        String   @id @default(uuid())
   name      String
   type      String
-  capacity Int
+  capacity  Int
   campusId  String
   campus    Campus   @relation(fields: [campusId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   rooms     Room[]
-
-  @@index([campusId])
 }
 
 model Room {
@@ -494,8 +431,6 @@ model Room {
   updatedAt DateTime @updatedAt
 
   assignments HostelAssignment[]
-
-  @@index([hostelId])
 }
 
 model HostelAssignment {
@@ -509,10 +444,6 @@ model HostelAssignment {
   status      AssignmentStatus @default(ACTIVE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  @@unique([studentId, status])
-  @@index([studentId])
-  @@index([roomId])
 }
 
 enum AssignmentStatus {
@@ -536,8 +467,6 @@ model Exam {
 
   questions   ExamQuestion[]
   submissions ExamSubmission[]
-
-  @@index([courseId])
 }
 
 enum ExamStatus {
@@ -558,8 +487,6 @@ model ExamQuestion {
   points        Float    @default(1)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
-  @@index([examId])
 }
 
 enum QuestionType {
@@ -582,9 +509,6 @@ model ExamSubmission {
   status      SubmissionStatus @default(IN_PROGRESS)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  @@index([studentId])
-  @@index([examId])
 }
 
 enum SubmissionStatus {
@@ -603,8 +527,6 @@ model BiometricData {
   deviceId      String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
-  @@index([studentId])
 }
 
 model ActivityLog {
@@ -616,8 +538,6 @@ model ActivityLog {
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
-
-  @@index([userId])
 }
 
 model Session {
@@ -627,6 +547,4 @@ model Session {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
-
-  @@index([userId])
 }
