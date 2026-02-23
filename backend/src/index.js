@@ -18,7 +18,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const Routes = require('./src/routes/route');
+const Routes = require('../routes/route');
 
 app.use('/', Routes);
 
@@ -31,7 +31,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
 

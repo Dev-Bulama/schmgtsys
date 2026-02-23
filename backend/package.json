@@ -2,9 +2,9 @@
   "name": "school-management-backend",
   "version": "1.0.0",
   "description": "Modern School Management System Backend",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node src/index.js",
     "dev": "nodemon index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
